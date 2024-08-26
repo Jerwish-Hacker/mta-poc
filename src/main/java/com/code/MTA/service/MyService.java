@@ -50,7 +50,14 @@ public class MyService {
                     ")";
             firstJdbcTemplate.execute(createTableSql2);
 
-            return "Schema '" + schemaName + "' and table  created successfully!";
+            // Construct the JDBC URL for the new schema
+            String jdbcUrl = "jdbc:postgresql://localhost:5432/postgres?currentSchema=" + schemaName;
+
+            // Log schema creation in the common schema's my_table
+            String logSchemaCreationSql = "INSERT INTO public.schemas_log (schema_name, created_by, jdbc_url, username, password, driver) VALUES (?, ?, ?, ?, ?, ?)";
+            firstJdbcTemplate.update(logSchemaCreationSql, schemaName, "system", jdbcUrl, "postgres", "1234", "org.postgresql.Driver");
+
+            return "Schema '" + schemaName + "' and tables created successfully!";
         } catch (Exception e) {
             return "Error creating schema or table: " + e.getMessage();
         }
